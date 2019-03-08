@@ -1,0 +1,4 @@
+program test
+void main
+	Writeln "Hello World!"
+end
