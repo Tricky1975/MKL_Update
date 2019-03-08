@@ -65,6 +65,7 @@ namespace MKL_Update
             // Visual Studio closes the window immediately and I may need the last output, you see!
             Console.WriteLine("Hit any key"); 
             Console.ReadKey();
+            
 #endif
 
         }
