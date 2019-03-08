@@ -1,8 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MKL_Update
 {
@@ -10,9 +7,8 @@ namespace MKL_Update
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Start up tempalte");
+            Console.WriteLine("Start up template");
             Console.ReadKey();
-
         }
     }
 }
