@@ -12,6 +12,8 @@ Why C#? Because it's one of the most coder friendly languages I have now, and si
 The program has been written in Visual Studio, and should compile in any version of VS without much trouble.
 The datafile is a JCR6 resource file which should always be named MKL_Update.jcr and be located in the same folder as MKL_Update.exe (Linux users should be aware of the case sensitivity or things may not work well). If you have the JCR6 cli tools installed and your "PATH" environment variable properly set so it can easily be found, then the builddata.bat should work on both Unix and Windows to get this file built.
 
+Please note this program itself has been coded in 100% C# language. Batch files are used for quick testing and building purposes and all other languages are merely there to test if this program affects these languages correctly, but those files do not serve any other purpose than that (yet Github can't tell the difference) :)
+
 # W.I.P
 
 This is a work in progress... Don't expect this to work at all as long as this notice is still there!
