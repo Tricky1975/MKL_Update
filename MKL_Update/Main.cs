@@ -100,6 +100,8 @@ namespace MKL_Update
 
         static void Main(string[] args)
         {
+            JCR6_lzma.Init();
+            MKL_Run.MKL_See();
             MKL.Lic("", "");
             MKL.Version("", "10.10.10");
 #if argdebug
@@ -108,6 +110,16 @@ namespace MKL_Update
             MyArgs = new FlagParse(args);
             InitArgs();
             Head();
+            string[] dirs;
+            if (MyArgs.Args.Length == 0) dirs = new string[] { System.IO.Directory.GetCurrentDirectory() }; else dirs = MyArgs.Args;
+            foreach (string q in dirs) {
+                Console.Write("Will process:      ");
+                Console.ForegroundColor = ConsoleColor.Magenta;
+                Console.WriteLine(q);
+                Console.ResetColor();
+            }
+            foreach (string dir in dirs) MKL_Run.Run(dir);
+
 #if DEBUG
             // Only meant for running in debug mode, as in release mode this doesn't matter.
             // Visual Studio closes the window immediately and I may need the last output, you see!
