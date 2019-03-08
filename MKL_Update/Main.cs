@@ -29,7 +29,13 @@ namespace MKL_Update
             Console.WriteLine("MaKe License - Update");
             Console.ForegroundColor = ConsoleColor.Gray;
             Console.WriteLine($"Version: {MKL.Newest}");
+#if DEBUG
+            // Only meant for running in debug mode, as in release mode this doesn't matter.
+            // Visual Studio closes the window immediately and I may need the last output, you see!
+            Console.WriteLine("Hit any key"); 
             Console.ReadKey();
+#endif
+
         }
     }
 }
