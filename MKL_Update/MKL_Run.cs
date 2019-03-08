@@ -35,11 +35,26 @@ namespace MKL_Update
 #endif
                     StaticExt = new List<string>();
                     foreach (string n in MKL_Main.JCR.Entries.Keys)
-                        if (qstr.Prefixed(n, "EXT/")) StaticExt.Add(qstr.Right(n,n.Length-4));
+                        if (qstr.Prefixed(n, "EXT/")) StaticExt.Add(qstr.Right(n, n.Length - 4));
                 }
                 return StaticExt;
             }
         }
+
+        static Dictionary<int, string> StaticLics = null;
+        Dictionary<int, string> Lic {
+            get {                
+                if (StaticLics == null) {
+                    StaticLics = new Dictionary<int, string>();
+                    int c = 0;
+                    foreach(var ilic in MKL_Main.JCR.Entries.Values) {
+                        StaticLics[c] = ilic.Entry;
+                    }
+                }
+                return StaticLics;
+            }
+        }
+
         readonly string dir;
 
         MKL_Run(string dodir) { dir = dodir; }
@@ -61,10 +76,11 @@ namespace MKL_Update
                 Console.ForegroundColor = ConsoleColor.Yellow;
                 Console.Write(q);
                 Console.ForegroundColor = ConsoleColor.Cyan;
-                Data.D(key, Console.ReadLine());
-                Console.ForegroundColor = ConsoleColor.Gray;
-                Data.SaveSource(GINIFile);
+                Data.D(key, Console.ReadLine().Trim());
+                if (Data.C(key) == "") Data.D(key, defaultval);
+                Console.ForegroundColor = ConsoleColor.Gray;                
             }
+            Data.SaveSource(GINIFile);
         }
         
 
@@ -90,6 +106,69 @@ namespace MKL_Update
             Data.CL("SKIPDIR");
             Ask("Project", dir, "Please name the project: ");
             return true;
+        }
+
+        string ThisYear {
+        get {
+                return DateTime.Now.ToString("yyyy");
+            }
+        }
+
+        string CrVersion => DateTime.Now.ToString("yy.MM.dd");
+
+        string FormBlock(string f) {
+            var ret = "";
+            if (Data.C($"Lic {f}") == "") {
+                Console.BackgroundColor = ConsoleColor.DarkMagenta;
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine("License block not yet known");
+                Console.BackgroundColor = ConsoleColor.Black;
+                Console.ForegroundColor = ConsoleColor.Gray;
+                var mx = 0;
+                for (int i = 0; Lic.ContainsKey(i); i++) {
+                    mx = i;
+                    Console.WriteLine($" {i + 1} = {Lic[i]}");
+                }
+                int keuze = -1;
+                do {
+                    Console.Write("Please make your choice: ");
+                    keuze = qstr.ToInt(Console.ReadLine()) - 1;
+                } while (!Lic.ContainsKey(keuze));
+                Data.D($"Lic {f}", Lic[keuze]);
+                Data.SaveSource(GINIFile);
+            }
+            var mlic = Data.C($"Lic {f}");
+            var cyear = Data.C($"IYEAR {f}");
+            Ask("CYEAR {f}", ThisYear, "Intial year of this project: ");
+            if (cyear == "") cyear = Data.C($"IYEAR {f}");
+            else if (qstr.Suffixed(cyear, ThisYear)) {
+                cyear += $", {ThisYear}";
+                Data.D($"IYEAR {f}", cyear);
+                Data.SaveSource(GINIFile);
+            }
+            foreach (string fld in License.Fields(Data.C($"Lic {f}"))) {
+                Ask($"Licfield - {f} - {mlic} - {fld}", License.Get(mlic).C($"DEFAULT[{fld}]"), fld + ": ");
+            }
+            var ldata = License.Get(mlic); 
+            ret = $"{ldata.C("START")}\n";
+            foreach(string licline in ldata.List("License")) {
+                string tl = licline.Replace("<\\n>","\n");
+                tl = tl.Replace("[\\n]", "\n");
+                tl = tl.Replace("[$thisfile]", f);
+                tl = tl.Replace("<$thisfile>", f);
+                tl = tl.Replace("[$years]", Data.C("IYEAR"));
+                tl = tl.Replace("<$years>", Data.C("IYEAR"));
+                tl = tl.Replace("[$version]", CrVersion);
+                tl = tl.Replace("<$version>", CrVersion);
+                foreach(string fld in License.Fields(Data.C($"Lic {f}"))) {
+                    tl = tl.Replace($"[{fld}]", Data.C($"Licfield - {f} - {mlic} - {fld}"));
+                    tl = tl.Replace($"<{fld}>", Data.C($"Licfield - {f} - {mlic} - {fld}"));
+                }
+                if (Data.C("PREF")!="") tl = $"{Data.C("PREF")} {tl}";
+                ret += $"{tl}\n";
+            }
+            ret += $"{ret}{ldata.C("END")}\n";
+            return ret;
         }
 
         bool ReplaceBlock(string f)
@@ -142,11 +221,14 @@ namespace MKL_Update
                 if (d != "") Console.WriteLine("5 = Skip this entire directory forever");
                 Console.Write("Please tell me what to do: ");
                 var c = Console.ReadKey();
+                Console.WriteLine("\n"); // Yes, two lines :P
                 switch (c.Key) {
                     case ConsoleKey.D1:
-                        return ReplaceBlock(f);
+                        if (!ReplaceBlock(f)) Error("Block replacement failed!");
+                        return false; // Always false, or the system will do this again for no reason!
                     case ConsoleKey.D2:
-                        return AddBlock(f);
+                        if (!AddBlock(f)) Error("Block addition failed!");
+                        return false; // Always false, or the system will do this again for no reason!
                     case ConsoleKey.D3:
                         return false;
                     case ConsoleKey.D4:
@@ -164,7 +246,7 @@ namespace MKL_Update
 
         void Look(string f) {
              if (Act(f)) {
-
+                if (!ReplaceBlock(f)) Error("License block replacement failed");
             }
         }
 
@@ -206,6 +288,7 @@ namespace MKL_Update
                     }
                 }
             }
+            jout.Close();
             Console.WriteLine("Processing source files");
             foreach (string f in sources) {
                 count++;
@@ -216,7 +299,6 @@ namespace MKL_Update
                 }
                 Look(f);
                 count = 0;
-                jout.Close();
             }
         }
         
