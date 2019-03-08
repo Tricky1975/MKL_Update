@@ -9,6 +9,8 @@ namespace MKL_Update
     class MKL_Main
     {
         static FlagParse MyArgs;
+        static public string MyExe => System.Reflection.Assembly.GetEntryAssembly().Location;
+        static public string MyJCR => qstr.Left(MyExe, MyExe.Length - 3) + "jcr";
 
         private static void InitArgs() {
             MyArgs.CrBool("version", false);
@@ -53,6 +55,18 @@ namespace MKL_Update
             Console.WriteLine("MaKe License - Update");
             Console.ForegroundColor = ConsoleColor.Gray;
             Console.WriteLine($"Version: {MKL.Newest}");
+            Console.Write("\n\nCurrect directory: ");
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.WriteLine(System.IO.Directory.GetCurrentDirectory());
+            Console.ResetColor();
+            Console.Write("Lauched file:      ");
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.WriteLine(MyExe);
+            Console.ResetColor();
+            Console.Write("JCR Date file:     ");
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.WriteLine(MyJCR);
+            Console.ResetColor();
         }
 
         static void Main(string[] args)
