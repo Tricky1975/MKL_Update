@@ -1,0 +1,18 @@
+[List:License]
+
+        <$thisfile>
+	(c) <$years> <Copyright Holder>.
+	
+	This Source Code Form is subject to the terms of the 
+	Mozilla Public License, v. 2.0. If a copy of the MPL was not 
+	distributed with this file, You can obtain one at 
+	http://mozilla.org/MPL/2.0/.
+
+        Version: <$version>
+
+[List:Fields]
+Copyright Holder
+
+[vars]
+Default[Copyright Holder]=Jeroen Petrus Broks
+

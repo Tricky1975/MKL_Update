@@ -1,0 +1,10 @@
+
+[Vars]
+START=// Lic:
+End=// EndLic
+PREF=//
+LANGUAGE=C#
+VPREF=MKL.Version
+LPREF=MKL.Lic
+VFULL=MKL.Version("<$project> - <$file>","<$version>");
+LFULL=MKL.Lic    ("<$project> - <$file>","<$license>");

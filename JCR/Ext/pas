@@ -1,0 +1,4 @@
+[vars]
+START={ --- START LICENSE BLOCK ---
+END=  --- END LICENSE BLOCK --- } 
+LANGUAGE=Pascal

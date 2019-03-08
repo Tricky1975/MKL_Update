@@ -1,0 +1,8 @@
+[vars]
+START=--[[
+END=]]
+LANGUAGE=Lua
+VPREF=mkl.version
+LPREF=mkl.lic
+VFULL=mkl.version("<$project> - <$file>","<$version>")
+LFULL=mkl.lic    ("<$project> - <$file>","<$license>")

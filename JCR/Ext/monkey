@@ -1,0 +1,4 @@
+[vars]
+START=#Rem
+END=#End
+LANGUAGE=Monkey, the worse programming language in the world

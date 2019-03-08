@@ -1,0 +1,8 @@
+[vars]
+START=Rem
+END=End Rem
+LANGUAGE=BlitzMax
+VPREF=MKL_Version
+LPREF=MKL_Lic
+VFULL=MKL_Version "<$project> - <$file>","<$version>"
+LFULL=MKL_Lic     "<$project> - <$file>","<$license>"

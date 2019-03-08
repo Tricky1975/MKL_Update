@@ -1,0 +1,8 @@
+[vars]
+START=[rem]
+END=-- END LICENSE --
+LANGUAGE=GINI is not ini
+VPREF=MKL_VERSION=
+LPREF=MKL_LIC=
+VFULL=MKL_VERSION=<$version>
+LFULL=MKL_LIC    =<$license>

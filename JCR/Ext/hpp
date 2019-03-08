@@ -1,0 +1,14 @@
+[Vars]
+START=// Lic:
+End=// EndLic
+PREF=//
+LANGUAGE=C++
+VPREF=mkl_Version
+LPREF=mkl_Lic
+VFULL=mkl_Version("<$project> - <$file>","<$version>");
+LFULL=mkl_Lic    ("<$project> - <$file>","<$license>");
+
+[rem]
+START=/*   -- Start License block
+END=     -- End License block   */
+LANGUAGE=C

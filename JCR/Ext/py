@@ -1,0 +1,4 @@
+[vars]
+START="""   -- Start License block
+END=       -- End License block   """
+LANGUAGE=Python

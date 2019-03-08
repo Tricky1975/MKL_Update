@@ -1,0 +1,9 @@
+[vars]
+START={ --- START LICENSE BLOCK ---
+END=  --- END LICENSE BLOCK --- } 
+LANGUAGE=Scyndi
+VPREF=mkl_Version
+LPREF=mkl_Lic
+VFULL=mkl_Version("<$project> - <$file>","<$version>")
+LFULL=mkl_Lic    ("<$project> - <$file>","<$license>")
+
