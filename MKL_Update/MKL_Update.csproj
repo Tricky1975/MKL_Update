@@ -159,6 +159,7 @@
     <Compile Include="..\..\TrickyUnits\qstream.cs">
       <Link>dep\units\qstream.cs</Link>
     </Compile>
+    <Compile Include="Ext.cs" />
     <Compile Include="MKL_Run.cs" />
     <Compile Include="dep\jcr6\zlib\zlib.cs" />
     <Compile Include="Main.cs" />

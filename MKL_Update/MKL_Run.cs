@@ -85,8 +85,87 @@ namespace MKL_Update
                 QuickStream.SaveString(GINIFile, "[rem]\nVoid Dark(){ cprintf(\"Void the darkness\"); }\n");
             }
             Data = GINI.ReadFromFile(GINIFile);
+            Data.CL("KNOWN");
+            Data.CL("SKIPFILE");
+            Data.CL("SKIPDIR");
             Ask("Project", dir, "Please name the project: ");
             return true;
+        }
+
+        bool ReplaceBlock(string f)
+        {
+            return false; // code comes later!
+        }
+
+        bool AddBlock(string f)
+        {
+            return false; // code comes later!
+        }
+
+        bool Act(string f) {
+            string d = qstr.ExtractDir(f);
+            string e = qstr.ExtractExt(f);
+            if (Data.List("KNOWN").Contains(f)) return true;
+            if (Data.List("SKIPFILE").Contains(f)) return false;
+            if (Data.List("SKIPDIR").Contains(d)) return false;
+            Console.Beep();
+            do {
+                Console.Clear();
+                Console.BackgroundColor = ConsoleColor.DarkRed;
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine($"**** {f} ****");
+                Console.ForegroundColor = ConsoleColor.Cyan;
+                Console.BackgroundColor = ConsoleColor.Black;
+                string remblock = "";
+                var BT = QuickStream.ReadFile(f);
+                var L = BT.ReadLine();
+                if (L == Extension.Get(e).C("START")) {
+                    remblock = L + "\n";
+                    do {
+                        L = BT.ReadLine();
+                        if (L == Extension.Get(e).C("END")) break;
+                        if (BT.EOF) {
+                            Error("Unclosed license block!");
+                            return false;
+                        }
+                        remblock += L + "\n";
+                                } while (true);
+                }
+                BT.Close();
+
+                Console.ForegroundColor = ConsoleColor.Gray;
+                Console.WriteLine("");
+                Console.WriteLine("1 = Replace original block and add this file to the auto-updateble files");
+                Console.WriteLine("2 = Add license block and add this file to the auto-updatable files");
+                Console.WriteLine("3 = Skip this file for now");
+                Console.WriteLine("4 = Skip this file forever");
+                if (d != "") Console.WriteLine("5 = Skip this entire directory forever");
+                Console.Write("Please tell me what to do: ");
+                var c = Console.ReadKey();
+                switch (c.Key) {
+                    case ConsoleKey.D1:
+                        return ReplaceBlock(f);
+                    case ConsoleKey.D2:
+                        return AddBlock(f);
+                    case ConsoleKey.D3:
+                        return false;
+                    case ConsoleKey.D4:
+                        Data.Add("SKIPFILE", f);
+                        Data.SaveSource(GINIFile);
+                        return false;
+                    case ConsoleKey.D5:
+                        if (d == "") break;
+                        Data.Add("SKIPDIR", d);
+                        Data.SaveSource(GINIFile);
+                        return false;
+                }
+            } while (true);            
+        }
+
+        void Look(string f) {
+             if (Act(f)) {
+
+            }
         }
 
         void Go() {
@@ -112,7 +191,7 @@ namespace MKL_Update
                 count++;
                 if (count==f.Length || count%50==0) {
                     Console.ForegroundColor = ConsoleColor.DarkBlue;
-                    Console.Write($"{count}/{f.Length}\r");
+                    Console.Write($"{count}/{files.Length}\r");
                     Console.ForegroundColor=ConsoleColor.Gray;
                 }
                 var s = f.Split('.');
@@ -127,7 +206,18 @@ namespace MKL_Update
                     }
                 }
             }
-            jout.Close();
+            Console.WriteLine("Processing source files");
+            foreach (string f in sources) {
+                count++;
+                if (count == f.Length || count % 50 == 0) {
+                    Console.ForegroundColor = ConsoleColor.DarkBlue;
+                    Console.Write($"{count}/{sources.Count}\r");
+                    Console.ForegroundColor = ConsoleColor.Gray;
+                }
+                Look(f);
+                count = 0;
+                jout.Close();
+            }
         }
         
     }

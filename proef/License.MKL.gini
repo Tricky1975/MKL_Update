@@ -1,17 +1,16 @@
 [rem]
 Generated file!
 
-Generated: 3/8/2019 8:14:52 PM
+Generated: 3/8/2019 8:23:31 PM
 
 [vars]
-PROJECT=MKL Update
+PROJECT=Mijn MKL proeftuintje
 
 
 [List:KNOWN]
 
 [List:SKIPFILE]
 License.MKL.gini
-MKL_Update/bin/Debug/License.MKL.gini
 
 [List:SKIPDIR]
 
