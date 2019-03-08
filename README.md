@@ -15,3 +15,6 @@ The datafile is a JCR6 resource file which should always be named MKL_Update.jcr
 # W.I.P
 
 This is a work in progress... Don't expect this to work at all as long as this notice is still there!
+
+
+![](https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/Copyleft.svg/1024px-Copyleft.svg.png)
