@@ -1,3 +1,5 @@
+#undef argdebug
+
 using System;
 using System.Collections.Generic;
 using TrickyUnits;
@@ -57,6 +59,9 @@ namespace MKL_Update
         {
             MKL.Lic("", "");
             MKL.Version("", "10.10.10");
+#if argdebug
+            for (int i = 0; i < args.Length; i++) Console.Write(qstr.sprintf("%d:%s", i, args[i])); 
+#endif
             MyArgs = new FlagParse(args);
             InitArgs();
             Head();
@@ -64,8 +69,7 @@ namespace MKL_Update
             // Only meant for running in debug mode, as in release mode this doesn't matter.
             // Visual Studio closes the window immediately and I may need the last output, you see!
             Console.WriteLine("Hit any key"); 
-            Console.ReadKey();
-            
+            Console.ReadKey();            
 #endif
 
         }
