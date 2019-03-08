@@ -3,6 +3,8 @@
 using System;
 using System.Collections.Generic;
 using TrickyUnits;
+using UseJCR6;
+
 
 namespace MKL_Update
 {
@@ -11,8 +13,22 @@ namespace MKL_Update
         static FlagParse MyArgs;
         static public string MyExe => System.Reflection.Assembly.GetEntryAssembly().Location;
         static public string MyJCR => qstr.Left(MyExe, MyExe.Length - 3) + "jcr";
+        static TJCRDIR _JCR=null;
+        static public TJCRDIR JCR { get
+            {
+                if (_JCR == null) {
+#if DEBUG
+                    Console.WriteLine("Loading JCR6 directory");
+#endif
+                    _JCR = JCR6.Dir(MyJCR);
+                }
+                if (_JCR == null) throw new Exception($"JCR6 could not load the required data in {MyJCR}! Error thrown: {JCR6.JERROR}");
+                return _JCR;
+            }
+        }
 
         private static void InitArgs() {
+            JCR6_lzma.Init();
             MyArgs.CrBool("version", false);
             MyArgs.CrBool("help", false);
             MyArgs.CrBool("h", false);
@@ -45,7 +61,20 @@ namespace MKL_Update
                 Console.ForegroundColor = ConsoleColor.Magenta;
                 Console.WriteLine("-version");
                 Console.ForegroundColor = ConsoleColor.Gray;
-                Console.WriteLine("Shows detailed version information");
+                Console.WriteLine("\tShows detailed version information");
+                Console.WriteLine("\n\n\nThe next programming languages are supported by MKL_Update");
+                foreach (string k in JCR.Entries.Keys) if (qstr.Prefixed(k, "EXT/")) {
+                        TGINI T = GINI.ReadFromLines(JCR.ReadLines(k));
+                        // Console.WriteLine($"{k} => {qstr.Prefixed(k, "EXT/")}"); // debug line
+                        Console.ForegroundColor = ConsoleColor.Yellow;
+                        Console.BackgroundColor = ConsoleColor.Blue;
+                        Console.Write(k.ToLower());
+                        for (int i = k.Length; i < 30; i++) Console.Write(" ");
+                        Console.BackgroundColor = ConsoleColor.Black;
+                        Console.ForegroundColor = ConsoleColor.Magenta;
+                        Console.WriteLine($" {T.C("LANGUAGE")}");
+                    }
+                Console.ResetColor();
                 Environment.Exit(0);
             }
         }

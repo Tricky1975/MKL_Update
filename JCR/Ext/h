@@ -2,7 +2,7 @@
 START=// Lic:
 End=// EndLic
 PREF=//
-LANGUAGE=C
+LANGUAGE=C/C++ header
 VPREF=mkl_Version
 LPREF=mkl_Lic
 VFULL=mkl_Version("<$project> - <$file>","<$version>");

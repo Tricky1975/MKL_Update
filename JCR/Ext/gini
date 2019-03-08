@@ -1,6 +1,9 @@
+[rem]
+Please note that you'll need GINI parsers 19.04.xx or later to be sure this is all properly picked up!
+
 [vars]
-START=[rem]
-END=-- END LICENSE --
+START=[lic]
+END=[/lic]
 LANGUAGE=GINI is not ini
 VPREF=MKL_VERSION=
 LPREF=MKL_LIC=
