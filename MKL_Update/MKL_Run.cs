@@ -1,4 +1,6 @@
-﻿using System;
+﻿#undef ChangeDebug
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using TrickyUnits;
@@ -16,12 +18,14 @@ namespace MKL_Update
         }
 
         static public void Run(string dir) {
-            var locRun = new MKL_Run(dir);
+            var odir = Directory.GetCurrentDirectory(); Directory.SetCurrentDirectory(dir);
+            var locRun = new MKL_Run(dir);            
             Console.Write("\n\nProcessing: ");
             Console.ForegroundColor = ConsoleColor.Magenta;
             Console.WriteLine(dir);
             Console.ResetColor();
             locRun.Go();
+            Directory.SetCurrentDirectory(odir);
         }
 
 
@@ -48,7 +52,10 @@ namespace MKL_Update
                     StaticLics = new Dictionary<int, string>();
                     int c = 0;
                     foreach(var ilic in MKL_Main.JCR.Entries.Values) {
-                        StaticLics[c] = ilic.Entry;
+                        if (qstr.Prefixed(ilic.Entry.ToUpper(), "LIC/")) {
+                            StaticLics[c] = qstr.Right(ilic.Entry,ilic.Entry.Length-4);
+                            c++;
+                        }
                     }
                 }
                 return StaticLics;
@@ -118,6 +125,7 @@ namespace MKL_Update
 
         string FormBlock(string f) {
             var ret = "";
+            var e = qstr.ExtractExt(f);
             if (Data.C($"Lic {f}") == "") {
                 Console.BackgroundColor = ConsoleColor.DarkMagenta;
                 Console.ForegroundColor = ConsoleColor.Yellow;
@@ -137,20 +145,26 @@ namespace MKL_Update
                 Data.D($"Lic {f}", Lic[keuze]);
                 Data.SaveSource(GINIFile);
             }
+            if (qstr.Prefixed(Data.C($"Lic {f}").ToUpper(),"LIC/")) {
+                Error("Invalid License Value -- Fixing!");
+                Data.D($"Lic {f}", qstr.StripDir(Data.C($"Lic {f}"))); // Result of an early bug, but it haunts the rest of my debugging sessions!
+            }
             var mlic = Data.C($"Lic {f}");
             var cyear = Data.C($"IYEAR {f}");
-            Ask("CYEAR {f}", ThisYear, "Intial year of this project: ");
+            Ask($"CYEAR {f}", ThisYear, "Intial year of this project: ");
             if (cyear == "") cyear = Data.C($"IYEAR {f}");
             else if (qstr.Suffixed(cyear, ThisYear)) {
                 cyear += $", {ThisYear}";
                 Data.D($"IYEAR {f}", cyear);
                 Data.SaveSource(GINIFile);
             }
-            foreach (string fld in License.Fields(Data.C($"Lic {f}"))) {
+            foreach (string fld in License.Fields(mlic)) {
                 Ask($"Licfield - {f} - {mlic} - {fld}", License.Get(mlic).C($"DEFAULT[{fld}]"), fld + ": ");
             }
-            var ldata = License.Get(mlic); 
-            ret = $"{ldata.C("START")}\n";
+            var ldata = License.Get(mlic);
+            var edata = Extension.Get(e);
+            if (edata.C("START") == "" || edata.C("END") == "") throw new Exception($"Language '{e}' has is not complete!");
+            ret = $"{edata.C("START")}\n";
             foreach(string licline in ldata.List("License")) {
                 string tl = licline.Replace("<\\n>","\n");
                 tl = tl.Replace("[\\n]", "\n");
@@ -164,27 +178,113 @@ namespace MKL_Update
                     tl = tl.Replace($"[{fld}]", Data.C($"Licfield - {f} - {mlic} - {fld}"));
                     tl = tl.Replace($"<{fld}>", Data.C($"Licfield - {f} - {mlic} - {fld}"));
                 }
-                if (Data.C("PREF")!="") tl = $"{Data.C("PREF")} {tl}";
+                if (edata.C("PREF")!="") tl = $"{edata.C("PREF")} {tl}";
                 ret += $"{tl}\n";
             }
-            ret += $"{ret}{ldata.C("END")}\n";
+            ret += $"{edata.C("END")}\n";
             return ret;
         }
 
-        bool ReplaceBlock(string f)
-        {
-            return false; // code comes later!
+        string[] ReplMKL(string f,List<string> src) {
+            var ret = new List<string>();
+            var e = qstr.ExtractExt(f).ToUpper();
+            foreach(string sl in src) {
+                var rk = sl;
+                //Console.WriteLine($"HUHI> {rk}");
+                if ((Extension.Get(e).C("VPREF") != "" && qstr.Prefixed(rk.Trim(), Extension.Get(e).C("VPREF"))) || (Extension.Get(e).C("VSUFF") != "" && qstr.Prefixed(rk.Trim(), Extension.Get(e).C("VSUFF")))) {
+                    string ident = "";
+                    int ipos = 0;
+                    while (rk[ipos] == 32 || rk[ipos] == 9) {
+                        ident += qstr.Chr(rk[ipos]);
+                        ipos++;
+                    }
+                    rk = ident + Extension.Get(e).C("VFULL");
+                    rk = rk.Replace("<$version>", CrVersion); // Right(Year(), 2) + "." + Right("0" + Month(), 2) + "." + Right("0" + Day(), 2))
+                    rk = rk.Replace("<$project>", Data.C("Project"));
+                    rk = rk.Replace("<$dir>", qstr.ExtractDir(f));
+                    rk = rk.Replace("<$file>", qstr.StripDir(f));
+                    rk = rk.Replace("<$fullfille>", f);
+                    rk = rk.Replace("<$license>", Data.C("Lic " + f));
+                }
+                //Console.WriteLine($"HUHO> {rk}"); Console.ReadLine(); Console.ReadLine(); Console.ReadLine();
+                ret.Add(rk);
+            }
+            return ret.ToArray();
         }
 
-        bool AddBlock(string f)
-        {
-            return false; // code comes later!
+        void SaveFile(string f,string[] code) {
+            var bt = QuickStream.WriteFile(f);
+            foreach (string ln in code) bt.WriteString($"{ln}\n",true);
+            bt.Close();
+        }
+        
+
+        bool ReplaceBlock(string f) {
+            var e = qstr.ExtractExt(f);
+            var src = new List<string>();
+            src.Add(FormBlock(f));
+            var BT = QuickStream.ReadFile(f);
+            var remblock = false;
+            while (!BT.EOF) {
+                var L = BT.ReadLine();
+                if (L == Extension.Get(e).C("START")) remblock = true;
+                if (!remblock) src.Add(L);
+                if (L == Extension.Get(e).C("END")) remblock = false;
+                //Console.WriteLine($"HUHUH>{L}");
+                //Console.WriteLine($"Block:{remblock} -- {L}");
+                //Console.ReadLine();
+            }
+            BT.Close();
+            var tar = ReplMKL(f,src);
+            SaveFile(f, tar);
+            return true;
+        }
+
+        bool AddBlock(string f) {
+            var e = qstr.ExtractExt(f);
+            var src = new List<string>();
+            src.Add(FormBlock(f));
+            var BT = QuickStream.ReadFile(f);            
+            while (!BT.EOF) {
+                var L = BT.ReadLine();
+                src.Add(L);
+            }
+            BT.Close();
+            var tar = ReplMKL(f,src);
+            SaveFile(f, tar);
+            return true;
+        }
+
+        bool Changed(string f) {
+            var ret = false;
+            var hash = qstr.md5(QuickStream.LoadString(f));
+            var info = new FileInfo(f);
+            ret = ret || hash != Data.C($"HASH {f}");
+            // This checkup is new, and I don't want adeptions due to changes made by outdated MKL updaters.
+            if (Data.C($"SIZE {f}") != "") ret = ret || $"{info.Length}" != Data.C($"SIZE {f}");
+            // This checkup is new, and I don't want adeptions due to changes made by outdated MKL updaters. Also the way this is constructed will only work properly in C#, so if this tool is ever rewritten in another language, this checkup will be ignored.
+            // C#TM means "C# time", but I guess that was obvious :P
+            if (Data.C($"C#TM {f}") != "") ret = ret || $"{info.CreationTime.ToString()}" != Data.C($"C#TM {f}");
+#if ChangeDebug
+            Console.WriteLine($"Outcome to the check is {ret}");
+            Console.WriteLine($"hashcheck:  {hash}/{Data.C($"HASH {f}")}/{hash == Data.C($"HASH {f}")}");
+            Console.WriteLine($"sizecheck:  {info.Length}/{Data.C($"SIZE {f}")}");
+#endif 
+            return ret;
+        }
+
+        void UpdateData(string f) {
+            var info = new FileInfo(f);
+            Data.D($"HASH {f}", qstr.md5(QuickStream.LoadString(f)));
+            Data.D($"SIZE {f}", $"{info.Length}");
+            Data.D($"C#TM {f}", $"{info.CreationTime.ToString()}");
+            Data.SaveSource(GINIFile);
         }
 
         bool Act(string f) {
             string d = qstr.ExtractDir(f);
             string e = qstr.ExtractExt(f);
-            if (Data.List("KNOWN").Contains(f)) return true;
+            if (Data.List("KNOWN").Contains(f)) return Changed(f);
             if (Data.List("SKIPFILE").Contains(f)) return false;
             if (Data.List("SKIPDIR").Contains(d)) return false;
             Console.Beep();
@@ -224,9 +324,13 @@ namespace MKL_Update
                 Console.WriteLine("\n"); // Yes, two lines :P
                 switch (c.Key) {
                     case ConsoleKey.D1:
+                        Data.Add("KNOWN", f);
+                        Data.SaveSource(GINIFile);
                         if (!ReplaceBlock(f)) Error("Block replacement failed!");
                         return false; // Always false, or the system will do this again for no reason!
                     case ConsoleKey.D2:
+                        Data.Add("KNOWN", f);
+                        Data.SaveSource(GINIFile);
                         if (!AddBlock(f)) Error("Block addition failed!");
                         return false; // Always false, or the system will do this again for no reason!
                     case ConsoleKey.D3:
@@ -246,11 +350,13 @@ namespace MKL_Update
 
         void Look(string f) {
              if (Act(f)) {
+                Console.WriteLine($"Updating {f}");                
                 if (!ReplaceBlock(f)) Error("License block replacement failed");
+                UpdateData(f);
             }
         }
 
-        void Go() {
+        void Go() {            
             string[] files;
             if (!GetGINI()) return;
             List<string> sources = new List<string>();
