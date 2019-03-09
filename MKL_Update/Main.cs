@@ -1,9 +1,40 @@
+// Lic:
+// MKL Update
+// Main program
+// 
+// 
+// 
+// (c) Jeroen P. Broks, 
+// 
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+// 
+// Please note that some references to data like pictures or audio, do not automatically
+// fall under this licenses. Mostly this is noted in the respective files.
+// 
+// Version: 19.03.09
+// EndLic
+
+
+
 #undef argdebug
 
+
 using System;
-using System.Collections.Generic;
 using TrickyUnits;
 using UseJCR6;
+
+
+
 
 
 namespace MKL_Update
@@ -26,6 +57,8 @@ namespace MKL_Update
                 return _JCR;
             }
         }
+
+
 
         private static void InitArgs() {
             JCR6_lzma.Init();
@@ -103,7 +136,7 @@ namespace MKL_Update
             JCR6_lzma.Init();
             MKL_Run.MKL_See();
             MKL.Lic("", "");
-            MKL.Version("", "10.10.10");
+            MKL.Version("MKL Update - Main.cs","19.03.09");
 #if argdebug
             for (int i = 0; i < args.Length; i++) Console.Write(qstr.sprintf("%d:%s", i, args[i])); 
 #endif
@@ -124,9 +157,14 @@ namespace MKL_Update
             // Only meant for running in debug mode, as in release mode this doesn't matter.
             // Visual Studio closes the window immediately and I may need the last output, you see!
             Console.WriteLine("Hit any key"); 
-            Console.ReadKey();            
-#endif
+            Console.ReadKey();
 
+#else
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.WriteLine("Ok"); // Homage to my old P2000T experiences!
+            Console.ForegroundColor = ConsoleColor.Gray;
+#endif
         }
     }
 }
+
