@@ -93,6 +93,9 @@
     <Compile Include="..\..\JCR6\Drivers\Compression\lzma\SevenZipHelper.cs">
       <Link>dep\jcr6\lzma\SevenZipHelper.cs</Link>
     </Compile>
+    <Compile Include="..\..\JCR6\Drivers\Compression\zlib\zlib.cs">
+      <Link>dep\jcr6\zlib\zlib.cs</Link>
+    </Compile>
     <Compile Include="..\..\JCR6\Drivers\Compression\zlib\zlib\Adler32.cs">
       <Link>dep\jcr6\zlib\zlib\Adler32.cs</Link>
     </Compile>
@@ -162,7 +165,6 @@
     <Compile Include="Ext.cs" />
     <Compile Include="License.cs" />
     <Compile Include="MKL_Run.cs" />
-    <Compile Include="dep\jcr6\zlib\zlib.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -21,8 +21,11 @@
 // Please note that some references to data like pictures or audio, do not automatically
 // fall under this licenses. Mostly this is noted in the respective files.
 // 
-// Version: 19.03.09
+// Version: 19.05.08
 // EndLic
+
+
+
 
 
 
@@ -134,9 +137,12 @@ namespace MKL_Update
         static void Main(string[] args)
         {
             JCR6_lzma.Init();
+            JCR6_zlib.Init();
             MKL_Run.MKL_See();
-            MKL.Lic("", "");
-            MKL.Version("MKL Update - Main.cs","19.03.09");
+            Extension.VER();
+            License.VER();
+            MKL.Lic    ("MKL Update - Main.cs","GNU General Public License 3");
+            MKL.Version("MKL Update - Main.cs","19.05.08");
 #if argdebug
             for (int i = 0; i < args.Length; i++) Console.Write(qstr.sprintf("%d:%s", i, args[i])); 
 #endif
@@ -167,4 +173,5 @@ namespace MKL_Update
         }
     }
 }
+
 
