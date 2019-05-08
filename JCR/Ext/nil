@@ -1,0 +1,9 @@
+[vars]
+START=// License Information:
+END=// End License Information
+PREF=//
+LANGUAGE=NIL isn't Lua
+VPREF=mkl.Version
+LPREF=mkl.Lic
+VFULL=mkl.Version("<$project> - <$file>","<$version>")
+LFULL=mkl.Lic    ("<$project> - <$file>","<$license>")
