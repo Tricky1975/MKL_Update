@@ -243,7 +243,7 @@ namespace MKL_Update
                 if (edata.C("PREF")!="") tl = $"{edata.C("PREF")} {tl}";
                 ret.Append($"{tl}\n");
             }
-            ret.Append( $"{edata.C("END")}\n");
+            ret.Append( $"{edata.C("END")}");
             return ret.ToString();
         }
 
