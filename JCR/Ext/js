@@ -1,0 +1,10 @@
+[Vars]
+START=// Lic:
+End=// EndLic
+PREF=//
+LANGUAGE=JavaScript
+VPREF=mkl_Version
+LPREF=mkl_Lic
+VFULL=mkl_Version("<$project> - <$file>","<$version>");
+LFULL=mkl_Lic    ("<$project> - <$file>","<$license>");
+

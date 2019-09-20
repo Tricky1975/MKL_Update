@@ -286,7 +286,6 @@ namespace MKL_Update
                     rk = rk.Replace("<$license>", Data.C("Lic " + f));
                 }
 
-
                 //Console.WriteLine($"HUHO> {rk}"); Console.ReadLine(); Console.ReadLine(); Console.ReadLine();
 
                 ret.Add(rk);
@@ -300,18 +299,10 @@ namespace MKL_Update
 
 
         void SaveFile(string f,string[] code) {
-
             var bt = QuickStream.WriteFile(f);
-
             foreach (string ln in code) bt.WriteString($"{ln}\n",true);
-
             bt.Close();
-
         }
-
-        
-
-
 
         bool ReplaceBlock(string f) {
             var e = qstr.ExtractExt(f);
