@@ -4,7 +4,7 @@
 // 
 // 
 // 
-// (c) Jeroen P. Broks, 
+// (c) Jeroen P. Broks, 2015, 2017, 2018, 2020
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@
 // Please note that some references to data like pictures or audio, do not automatically
 // fall under this licenses. Mostly this is noted in the respective files.
 // 
-// Version: 19.05.08
+// Version: 20.04.28
 // EndLic
 
 
@@ -42,7 +42,7 @@ namespace MKL_Update {
 
 
         public static void VER() {
-            MKL.Version("MKL Update - License.cs","19.05.08");
+            MKL.Version("MKL Update - License.cs","20.04.28");
             MKL.Lic    ("MKL Update - License.cs","GNU General Public License 3");
         }
 
@@ -60,5 +60,3 @@ namespace MKL_Update {
         public static string[] Fields(string key) => Get(key).List("FIELDS").ToArray();
     }
 }
-
-

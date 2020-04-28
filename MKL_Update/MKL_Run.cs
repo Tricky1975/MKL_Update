@@ -4,7 +4,7 @@
 // 
 // 
 // 
-// (c) Jeroen P. Broks, 
+// (c) Jeroen P. Broks, 2015, 2017, 2018, 2020
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@
 // Please note that some references to data like pictures or audio, do not automatically
 // fall under this licenses. Mostly this is noted in the respective files.
 // 
-// Version: 19.05.08
+// Version: 20.04.28
 // EndLic
 
 
@@ -49,7 +49,7 @@ namespace MKL_Update
         // Statics to get on the move
         static public void MKL_See() {
             MKL.Lic    ("MKL Update - MKL_Run.cs","GNU General Public License 3");
-            MKL.Version("MKL Update - MKL_Run.cs","19.05.08");
+            MKL.Version("MKL Update - MKL_Run.cs","20.04.28");
         }
 
 
@@ -211,9 +211,15 @@ namespace MKL_Update
 
             var mlic = Data.C($"Lic {f}");
             var cyear = Data.C($"IYEAR {f}");
-            Ask($"CYEAR {f}", ThisYear, "Intial year of this project: ");
-            if (cyear == "") cyear = Data.C($"IYEAR {f}");
-            else if (qstr.Suffixed(cyear, ThisYear)) {
+            if (cyear=="" && Data.C($"CYEAR {f}")!="") {
+                Console.Beep();
+                Console.WriteLine($"Correcting database ===> {f}");
+                Data.D($"IYEAR {f}", Data.C($"CYEAR"));
+            }
+            Ask($"IYEAR {f}", ThisYear, "Intial year of this project: ");
+            if (cyear == "") cyear = Data.C($"IYEAR {f}").Trim();
+            else if (!qstr.Suffixed(cyear, ThisYear)) {
+                Console.WriteLine($"{cyear} not suffixed as {ThisYear}, so adding that!   ({qstr.Right(cyear, ThisYear.Length)})");
                 cyear += $", {ThisYear}";
                 Data.D($"IYEAR {f}", cyear);
                 Data.SaveSource(GINIFile);
@@ -232,8 +238,8 @@ namespace MKL_Update
                 tl = tl.Replace("[\\n]", "\n");
                 tl = tl.Replace("[$thisfile]", f);
                 tl = tl.Replace("<$thisfile>", f);
-                tl = tl.Replace("[$years]", Data.C("IYEAR"));
-                tl = tl.Replace("<$years>", Data.C("IYEAR"));
+                tl = tl.Replace("[$years]", Data.C($"IYEAR {f}"));
+                tl = tl.Replace("<$years>", Data.C($"IYEAR {f}"));
                 tl = tl.Replace("[$version]", CrVersion);
                 tl = tl.Replace("<$version>", CrVersion);
                 foreach(string fld in License.Fields(Data.C($"Lic {f}"))) {
@@ -299,9 +305,12 @@ namespace MKL_Update
 
 
         void SaveFile(string f,string[] code) {
-            var bt = QuickStream.WriteFile(f);
-            foreach (string ln in code) bt.WriteString($"{ln}\n",true);
-            bt.Close();
+            //var bt = QuickStream.WriteFile(f);
+            //foreach (string ln in code) bt.WriteString($"{ln}\n",true);
+            //bt.Close();
+            var s = new StringBuilder();
+            foreach (string ln in code) s.Append($"{ln}\n");
+            QuickStream.SaveString(f, s.ToString().Trim());
         }
 
         bool ReplaceBlock(string f) {
@@ -448,127 +457,65 @@ namespace MKL_Update
 
 
         void Look(string f) {
-
              if (Act(f)) {
-
                 Console.WriteLine($"Updating {f}");                
-
                 if (!ReplaceBlock(f)) Error("License block replacement failed");
-
                 UpdateData(f);
-
             }
-
         }
 
 
 
         void Go() {            
-
             string[] files;
-
             if (!GetGINI()) return;
-
             List<string> sources = new List<string>();
-
             int count = 0;
-
             try {
-
                 files = FileList.GetTree(dir);
-
                 Directory.CreateDirectory($"{dir}/MKL_Backup");
-
             } catch (Exception e){
-
                 Error(e.Message);
-
                 return;
-
             }
-
             Console.WriteLine("Re-arranging backups");
-
             if (File.Exists($"{dir}/MKL_Backup/10.JCR")) File.Delete($"{dir}/MKL_Backup/10.JCR");
-
             for(int i = 9; i > 0; i--) {
-
                 if (File.Exists($"{dir}/MKL_Backup/{i}.JCR")) File.Move($"{dir}/MKL_Backup/{i}.JCR",$"{dir}/MKL_Backup/{i+1}.JCR");
-
             }
-
             Console.WriteLine("Backing up source files");
-
             var jout = new TJCRCreate($"{dir}/MKL_Backup/1.JCR", "lzma");
-
             foreach(string f in files) {
-
                 count++;
-
                 if (count==f.Length || count%50==0) {
-
                     Console.ForegroundColor = ConsoleColor.DarkBlue;
-
                     Console.Write($"{count}/{files.Length}\r");
-
                     Console.ForegroundColor=ConsoleColor.Gray;
-
                 }
-
                 var s = f.Split('.');
-
                 if (s.Length > 0) {
-
                     var e = s[s.Length - 1];
-
 #if DEBUG
-
                     Console.WriteLine($"DEBUG: {count}: {f} {e} {Ext.Contains(e.ToUpper())}");
-
 #endif
-
                     if (Ext.Contains(e.ToUpper())) {
-
                         sources.Add(f);
-
                         jout.AddFile($"{dir}/{f}", f, "lzma", "", "This is a backup created by MKL_Update");
-
                     }
-
                 }
-
             }
-
             jout.Close();
-
             Console.WriteLine("Processing source files");
-
             foreach (string f in sources) {
-
                 count++;
-
                 if (count == f.Length || count % 50 == 0) {
-
                     Console.ForegroundColor = ConsoleColor.DarkBlue;
-
                     Console.Write($"{count}/{sources.Count}\r");
-
                     Console.ForegroundColor = ConsoleColor.Gray;
-
                 }
-
                 Look(f);
-
                 count = 0;
-
             }
-
         }
-
-        
-
     }
-
 }
-
-
